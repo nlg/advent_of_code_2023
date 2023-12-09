@@ -1,97 +1,46 @@
-#!/bin/python3
+import pytest
+import common
 
-words_to_numbers = {
-    'one' : '1',
-    'two' : '2',    
-    'three' : '3',
-    'four' : '4',
-    'five' : '5',
-    'six' : '6',
-    'seven' : '7',
-    'eight' : '8',
-    'nine' : '9',
-}
+testdata1 = [
+    ('1abc2', '12', 12),
+    ('pqr3stu8vwx', '38', 38),
+    ('a1b2c3d4e5f' , '2345', 25),
+    ('treb7uchet', '7', 7),
+]
 
-def foo(str1):
-    """ 'two1nine' -> '219' """
-    new_str = ""
-    index = 0
-    for c in str1:
-        # Either it's an actual number
-        if c.isnumeric():
-            new_str = new_str + c
-            #print(f"found string ={new_str}")
-            index = index + 1
-            continue
-        # Or we're dealing with a char, in which case we will 
-        # do a sliding window of increasing size
-        temp = ""
-        for c2 in str1[index:]:    
-            # have we built a convertable string?
-            temp = temp + c2            
-            num = words_to_numbers.get(temp)
-            #print(f"temp={temp} num={num}")
-            # yup, add it and break the inner loop
-            if num != None:
-                new_str = new_str + num
-                break
-            # no, continue munching until the end
-        index = index + 1    
-    return new_str
+testdata2 = [
+    ('two1nine', '219', 29),
+    ('eightwothree', '823', 83),
+    ('abcone2threexyz', '123', 13),
+    ('xtwone3four', '2134', 24),
+    ('4nineeightseven2', '49872', 42),
+    ('zoneight234', '18234', 14),
+    ('7pqrstsixteen', '76', 76),
+    ('1abc2', '12', 12),
+    ('pqr3stu8vwx', '38', 38),
+    ('a1b2c3d4e5f' , '2345', 25),
+    ('treb7uchet', '7', 7),    
+]
 
-def test_num():
-    rv = foo("1")
-    assert rv == "1"
+@pytest.mark.parametrize("line, exp_str, exp_num", testdata2)
+def test_string(line, exp_str, exp_num):
+    s = common.filter_with_transform(data)
+    assert s == exp_str
+    rv = common.combine_first_and_last_number(s)
+    assert rv == exp_num
 
-def test_str():
-    rv = foo("one")
-    assert rv == "1" 
+def test_string():
+    sum = 0
+    for data, exp_str, exp_num in testdata1:
+        s = common.filter_with_transform(data)
+        rv = common.combine_first_and_last_number(s)
+        sum = sum + rv
+    assert sum == 142
 
-def test_combined():
-    rv = foo("1one")
-    assert rv == "11"
+def test_answer_a():
+    sum = common.read_file(common.filter_numbers, 'input')
+    assert sum == 54605
 
-def test_combined_reverse():
-    rv = foo("one1")
-    assert rv == "11"
-
-def test_multi_num():
-    rv = foo("21")
-    assert rv == "21"
-
-def test_multi_str():
-    rv = foo("onethreefour9")
-    assert rv == "1349"
-
-
-def read_numbers():
-    with open("input", "r") as fp:
-        l=[]
-        for line in fp.readlines():
-            new_line = ""            
-            l.append(foo(line))
-        return l
-
-def parse_lines(ll):
-    number = 0
-    rounds = 0
-    rounds_to_complete = None
-    skip = 0
-    for l in ll:
-        if skip > 0:
-            skip = skip - 1
-            continue
-        elif len(l) == 1:
-            print(f"{number} + {l[0]} = {number+int(l[0])} + {int(l[0])}")
-            number = number + int(l[0]+l[0])
-        elif len(l) > 1:
-            print(f"{number} + {l[0]} + {l[-1]} = {number + int(l[0] + l[1])}")
-            number = number + int(l[0] + l[-1])
-        rounds = rounds + 1
-        if rounds == rounds_to_complete and rounds_to_complete != None:
-            break
-    return number
-
-ll = read_numbers()
-num = parse_lines(ll)
-print(f"final number = {num}")
+def test_answer_b():
+    num_sum = common.read_file(common.filter_with_transform, 'input')
+    assert num_sum == 55429
